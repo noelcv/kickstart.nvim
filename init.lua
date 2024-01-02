@@ -43,6 +43,122 @@ P.S. You can delete this when you're done too. It's your config now :)
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
+vim.g.nightflyTransparent = true
+
+-- remaps from remap.lua
+vim.g.mapleader = " "
+local keymap = vim.keymap
+
+keymap.set("n", "<leader>pv", vim.cmd.Ex)
+
+keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+keymap.set("v", "K", ":m '<-2<CR>gv)gv")
+
+-- move half page up and down
+keymap.set("n", "<C-d>", "<C-d>zz")
+keymap.set("n", "<C-u>", "<C-u>zz")
+
+keymap.set("n", "<leader>nh", ":nohl<CR>")
+keymap.set("n", "x", '"_x')
+
+--increment / decrement numbers in normal mode
+--keymap.set("n", "<leader>+", "<C-a>")
+--keymap.set("n", "<leader>-", "<C-x>")
+
+keymap.set("n", "n", "nzzzv")
+keymap.set("n", "n", "Nzzzv")
+
+--split like a king
+keymap.set("n", "<leader>|", "<C-w>v")               -- vertically
+keymap.set("n", "<leader>-<leader>", "<C-w>s")       -- horizontally
+keymap.set("n", "<leader>se", "<C-w>=")              -- split w/ equal width
+keymap.set("n", "<leader>ss", ":close<CR>")          -- split w/ equal width
+
+keymap.set("n", "<leader><space>o", ":tabnew<CR>")   -- open new tab
+keymap.set("n", "<leader><space>x", ":tabclose<CR>") -- close current tab
+keymap.set("n", "<leader><space>.", ":tabn<CR>")     -- go to next tab
+keymap.set("n", "<leader><space>,", ":tabp<CR>")     -- go to previous tab
+
+
+keymap.set("x", "<leader>p", "\"_dP")
+
+keymap.set("n", "<leader>y", "\"+y")
+keymap.set("v", "<leader>y", "\"+y")
+keymap.set("n", "<leader>Y", "\"+Y")
+
+keymap.set("n", "<leader><BS>", "\"+d")
+keymap.set("v", "<leader><BS>", "\"+d")
+
+-- vim-maximizer
+
+vim.keymap.set("n", "<leader>sm", ":MaximizerToggle<CR>")
+vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>")
+
+vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>"
+)
+vim.keymap.set("n", "<leader>f", function()
+  vim.lsp.buf.format()
+end)
+
+vim.keymap.set("i", "<C-c>", "<Esc>")
+
+function save()
+  vim.cmd("write")
+end
+
+vim.keymap.set("i", "<C-w>", "<Esc>:lua save()<CR>", { noremap = true })
+vim.keymap.set("i", "jk", "<Esc>:lua save()<CR>", { noremap = true })
+
+-- Telescope
+
+vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>")
+vim.keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>")
+vim.keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>")
+vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>")
+vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>")
+
+-- set config from set.lua
+vim.opt.guicursor = ""
+vim.opt.nu = true
+vim.opt.relativenumber = true
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+
+vim.opt.smartindent = true
+
+vim.opt.wrap = false
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+vim.opt.undofile = true
+
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
+vim.opt.backspace = "indent,eol,start"
+
+vim.opt.termguicolors = true
+vim.opt.background = "dark"
+vim.opt.scrolloff = 8
+vim.opt.signcolumn = "yes"
+vim.opt.isfname:append("@-@")
+vim.opt.iskeyword:append("-")
+vim.opt.cursorline = true
+vim.opt.updatetime = 50
+
+vim.opt.colorcolumn = "80"
+
+vim.g.mapleader = " "
+
+vim.opt.clipboard:append("unnamedplus")
+
+-- split windows
+vim.opt.splitright = true
+vim.opt.splitbelow = true
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -72,9 +188,13 @@ require('lazy').setup({
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
-
+  'tpope/vim-surround',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
+
+  -- Replace with Register for copy paste operations
+  'vim-scripts/ReplaceWithRegister',
+  { 'bluz71/vim-nightfly-colors', name = 'nightfly', lazy = false, priority = 1000 },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -88,7 +208,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -106,14 +226,15 @@ require('lazy').setup({
       -- Adds LSP completion capabilities
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
-
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-nvim-lua',
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
     },
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',       opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -222,7 +343,7 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',      opts = {} },
 
   -- Fuzzy Finder (files, lsp, etc)
   {
@@ -253,12 +374,13 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
+  { 'nvim-treesitter/playground', },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.autoformat',
+  require 'kickstart.plugins.debug',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -266,7 +388,7 @@ require('lazy').setup({
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {})
 
 -- [[ Setting options ]]
@@ -274,7 +396,7 @@ require('lazy').setup({
 -- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
 
 -- Make line numbers default
 vim.wo.number = true
@@ -391,7 +513,7 @@ vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+vim.keymap.set('n', '<leader>T', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
